@@ -51,3 +51,4 @@ main{max-width:720px;margin:0 auto;padding:12px}
 .copy{width:100%;margin-top:14px;padding:13px;border:0;border-radius:14px;background:var(--g);color:#fff;font-size:16px;font-weight:600}
 .warn{color:#c0392b;font-size:13px}
 .empty{text-align:center;color:var(--mu);padding:40px 10px}
+.aut{margin:18px 0 6px;font-size:16px}.author{line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:12px}.author a{color:var(--g)}
