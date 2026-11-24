@@ -8,11 +8,18 @@ jobs:
   ios:
     runs-on: macos-15
     env:
-      EXPORT_METHOD: ${{ vars.IOS_EXPORT_METHOD || 'app-store-connect' }}
+      EXPORT_METHOD: app-store-connect
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+
+      - name: Select Xcode for TestFlight
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
+          xcodebuild -version
+          SDK_VERSION=$(xcrun --sdk iphoneos --show-sdk-version)
+          test "${SDK_VERSION%%.*}" -ge 26
 
       - name: Install certificate & profile
         env:
@@ -90,8 +97,33 @@ jobs:
           xcodebuild -exportArchive -archivePath $RUNNER_TEMP/App.xcarchive \
             -exportOptionsPlist $RUNNER_TEMP/export.plist -exportPath out
 
+      - name: Verify TestFlight IPA
+        run: |
+          ditto -x -k out/*.ipa "$RUNNER_TEMP/ipa-check"
+          APP=$(find "$RUNNER_TEMP/ipa-check/Payload" -maxdepth 1 -name '*.app' -type d | head -1)
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          security cms -D -i "$APP/embedded.mobileprovision" > "$RUNNER_TEMP/exported-profile.plist"
+          python3 - "$APP/Info.plist" "$RUNNER_TEMP/exported-profile.plist" <<'PY'
+          import datetime, os, plistlib, sys
+          with open(sys.argv[1], 'rb') as f:
+              info = plistlib.load(f)
+          with open(sys.argv[2], 'rb') as f:
+              profile = plistlib.load(f)
+          assert int(info['DTXcode']) >= 2600, 'Xcode 26+ required'
+          assert int(info['DTSDKName'].removeprefix('iphoneos').split('.')[0]) >= 26, 'iOS SDK 26+ required'
+          assert info['CFBundleIdentifier'] == os.environ['BUNDLE'], 'Bundle ID mismatch'
+          assert not profile.get('ProvisionedDevices'), 'Development/ad hoc profile cannot be used for TestFlight'
+          assert not profile.get('ProvisionsAllDevices'), 'Enterprise profile cannot be used for TestFlight'
+          assert not profile['Entitlements'].get('get-task-allow', False), 'Debugging must be disabled'
+          assert profile['ExpirationDate'] > datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None), 'Profile expired'
+          for key in ('CFBundleIdentifier', 'CFBundleShortVersionString', 'CFBundleVersion', 'DTXcode', 'DTSDKName'):
+              print(f'{key}: {info[key]}')
+          print('IPA signature, SDK and App Store distribution profile checks passed')
+          PY
+
       - uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
           path: out/*.ipa
+          if-no-files-found: error
 
