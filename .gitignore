@@ -1,0 +1,8 @@
+raw/
+node_modules/
+android/
+ios/
+*.p12
+*.jks
+*.keystore
+*.mobileprovision

@@ -1,0 +1,8 @@
+import openpyxl,glob
+for f in sorted(glob.glob('raw/*/*.xlsx')):
+    wb=openpyxl.load_workbook(f,read_only=True)
+    for ws in wb:
+        print('==',f.split('\\')[-1],ws.title,ws.max_row,ws.max_column)
+        for i,r in enumerate(ws.iter_rows(values_only=True)):
+            if i>9:break
+            print(r)

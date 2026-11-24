@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b6b4f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Giá đất HCM">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Bảng giá đất TP.HCM</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Giá đất TP.HCM</h1>
+    <button id="btnInfo" aria-label="Thông tin">ⓘ</button>
+  </div>
+  <div class="search">
+    <input id="q" type="search" placeholder="Tìm tên đường, đoạn đường…" autocomplete="off">
+  </div>
+  <div class="chips" id="regions"></div>
+</header>
+
+<main id="main">
+  <section id="viewAreas">
+    <div class="hint" id="areaHint"></div>
+    <input id="qa" type="search" class="areaSearch" placeholder="Tìm phường / xã…">
+    <div id="areaList" class="list"></div>
+  </section>
+
+  <section id="viewStreets" hidden>
+    <div class="bar">
+      <button id="back">‹ Quay lại</button>
+      <div id="areaTitle"></div>
+    </div>
+    <div class="tabs" id="types"></div>
+    <div class="sortbar">
+      <span id="count"></span>
+      <select id="sort">
+        <option value="name">Tên A→Z</option>
+        <option value="desc">Giá cao → thấp</option>
+        <option value="asc">Giá thấp → cao</option>
+      </select>
+    </div>
+    <div id="streetList" class="list"></div>
+  </section>
+
+  <section id="viewSearch" hidden>
+    <div class="tabs" id="types2"></div>
+    <div class="sortbar"><span id="count2"></span></div>
+    <div id="searchList" class="list"></div>
+  </section>
+</main>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="card">
+    <button class="close" id="closeSheet">✕</button>
+    <div class="area" id="sArea"></div>
+    <h2 id="sName"></h2>
+    <div class="seg" id="sSeg"></div>
+    <div class="prices" id="sPrices"></div>
+    <div class="calc">
+      <label>Tính nhanh theo diện tích (m²)</label>
+      <input id="area" type="number" inputmode="decimal" placeholder="Ví dụ: 80">
+      <div id="total"></div>
+    </div>
+    <button class="copy" id="copy">Sao chép thông tin</button>
+  </div>
+</div>
+
+<div id="info" class="sheet" hidden>
+  <div class="card">
+    <button class="close" id="closeInfo">✕</button>
+    <h2>Thông tin</h2>
+    <p>Dữ liệu lấy từ các Phụ lục bảng giá đất kèm dự thảo Nghị quyết HĐND TP.HCM (2025): TP.HCM cũ, Bình Dương cũ, Bà Rịa - Vũng Tàu cũ, Khu công nghệ cao.</p>
+    <p>Đơn vị: <b>đồng/m²</b> (bảng gốc tính 1.000 đồng/m²). Ứng dụng chạy offline sau lần mở đầu tiên.</p>
+    <p class="warn">Chỉ mang tính tham khảo. Vui lòng đối chiếu văn bản chính thức khi thực hiện thủ tục.</p>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
