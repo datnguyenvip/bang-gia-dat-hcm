@@ -1,6 +1,11 @@
 ﻿name: Build iOS (IPA)
 on:
   workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: Upload the verified IPA to App Store Connect for TestFlight
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 
@@ -11,6 +16,19 @@ jobs:
       EXPORT_METHOD: app-store-connect
     steps:
       - uses: actions/checkout@v4
+      - name: Check App Store Connect credentials
+        if: ${{ inputs.upload_testflight }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          for name in ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
 
@@ -126,4 +144,22 @@ jobs:
           name: ios-ipa
           path: out/*.ipa
           if-no-files-found: error
+
+      - name: Upload to App Store Connect
+        if: ${{ inputs.upload_testflight }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          umask 077
+          KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$KEY_DIR"
+          KEY_PATH="$KEY_DIR/AuthKey_${ASC_KEY_ID}.p8"
+          trap 'rm -f "$KEY_PATH"' EXIT
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
+          xcrun altool --validate-app -f out/*.ipa -t ios \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          xcrun altool --upload-app -f out/*.ipa -t ios \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
