@@ -57,12 +57,23 @@ jobs:
 
       - name: Archive
         run: |
+          # Scope signing to the app; CocoaPods frameworks cannot use its profile.
+          ruby -r xcodeproj <<'RUBY'
+          project = Xcodeproj::Project.open('ios/App/App.xcodeproj')
+          app = project.targets.find { |target| target.name == 'App' }
+          abort 'App target not found' unless app
+          app.build_configurations.each do |config|
+            config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
+            config.build_settings['DEVELOPMENT_TEAM'] = ENV.fetch('TEAM')
+            config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV.fetch('PNAME')
+            config.build_settings['CODE_SIGN_IDENTITY'] = ENV.fetch('IDENT')
+            config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = ENV.fetch('BUNDLE')
+          end
+          project.save
+          RUBY
           if [ -d ios/App/App.xcworkspace ]; then TARGET='-workspace ios/App/App.xcworkspace'; else TARGET='-project ios/App/App.xcodeproj'; fi
           xcodebuild $TARGET -scheme App -configuration Release \
-            -destination 'generic/platform=iOS' -archivePath $RUNNER_TEMP/App.xcarchive \
-            CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="$TEAM" \
-            PROVISIONING_PROFILE_SPECIFIER="$PNAME" CODE_SIGN_IDENTITY="$IDENT" \
-            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE" archive
+            -destination 'generic/platform=iOS' -archivePath $RUNNER_TEMP/App.xcarchive archive
 
       - name: Export IPA
         run: |
