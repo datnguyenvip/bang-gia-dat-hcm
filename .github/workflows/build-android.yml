@@ -23,11 +23,13 @@ jobs:
           npx cap add android
           npx capacitor-assets generate --android --assetPath assets || true
           npx cap sync android
-      - name: Set minSdkVersion 24
+      - name: Set SDK versions (min 24, compile/target 36)
         run: |
-          sed -i -E 's/minSdkVersion *= *[0-9]+/minSdkVersion = 24/' android/variables.gradle
+          sed -i -E 's/minSdkVersion *= *[0-9]+/minSdkVersion = 24/; s/compileSdkVersion *= *[0-9]+/compileSdkVersion = 36/; s/targetSdkVersion *= *[0-9]+/targetSdkVersion = 36/' android/variables.gradle
+          echo "android.suppressUnsupportedCompileSdk=36" >> android/gradle.properties
           grep -n "SdkVersion" android/variables.gradle
           grep -q "minSdkVersion = 24" android/variables.gradle
+          grep -q "targetSdkVersion = 36" android/variables.gradle
       - name: Set version
         run: |
           cd android/app
