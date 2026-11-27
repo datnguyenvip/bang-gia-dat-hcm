@@ -49,6 +49,13 @@ main{max-width:720px;margin:0 auto;padding:12px}
 .calc input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:16px}
 #total{margin-top:10px;font-size:20px;font-weight:700;color:var(--g)}
 .copy{width:100%;margin-top:14px;padding:13px;border:0;border-radius:14px;background:var(--g);color:#fff;font-size:16px;font-weight:600}
+.vt{margin-top:16px;border-top:1px solid var(--bd);padding-top:12px}.vt h3{margin:0 0 8px;font-size:16px;color:var(--g)}
+.vt label{display:block;margin-top:10px}.vt select{width:100%;margin-top:6px;padding:11px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:14px}
+.vt .ck{display:flex;gap:8px;align-items:flex-start;color:var(--tx)}.vt .ck input{width:auto;margin:3px 0 0}
+.two{display:flex;gap:8px}.two input{width:50%}
+.vt .seg{margin-top:6px}
+#vtOut{margin-top:12px;background:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.6}
+#vtOut .row{display:flex;justify-content:space-between;gap:10px}#vtOut .big{font-size:19px;font-weight:700;color:var(--g)}#vtOut .note{color:var(--mu);font-size:12.5px}
 .warn{color:#c0392b;font-size:13px}
 .empty{text-align:center;color:var(--mu);padding:40px 10px}
 .aut{margin:18px 0 6px;font-size:16px}.author{line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:12px}.author a{color:var(--g)}

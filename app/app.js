@@ -80,11 +80,81 @@ function openSheet(){
   $('#sPrices').onclick=e=>{const p=e.target.closest('[data-t]');if(!p)return;type=+p.dataset.t;openSheet();calc();};
   $('#sheet').hidden=false;calc();
 }
+let rate=0.5;
+const num=id=>parseFloat(($(id).value||'').replace(',','.'))||0;
+const vnd=n=>Math.round(n).toLocaleString('vi-VN')+' đồng';
+const pc=x=>Math.round(x*10000)/100+'%';
 function calc(){
-  const v=parseFloat(($('#area').value||'').replace(',','.'));
+  const v=num('#area');
   const p=sel[1][type];
   $('#total').textContent=v>0&&p!=null?`≈ ${Math.round(v*p*1000).toLocaleString('vi-VN')} đồng`:'';
+  calcVT();
 }
+// Xác định vị trí đất phi nông nghiệp theo Điều 4, Điều 6 và Phụ lục I NQ 87/2025/NQ-HĐND
+function calcVT(){
+  const out=$('#vtOut');
+  const base=sel[1][type];
+  if(base==null){out.innerHTML='<span class="note">Loại đất này chưa có giá trong bảng.</span>';return;}
+  const loc=$('#vtLoc').value, front=loc=='1';
+  $('#vtFrontBox').hidden=!front;
+  $('#vtAlleyBox').hidden=front||loc=='boat';
+  const notes=[];
+  let pos,posName,mult=1;
+  if(front){pos=1;posName='Vị trí 1 (mặt tiền)';}
+  else if(loc=='boat'){pos=4;posName='Vị trí 4 (không có đường/hẻm vào)';notes.push('Giá không thấp hơn giá đất trồng cây lâu năm cùng khu vực, vị trí (mục 6.5) – cần đối chiếu thêm.');}
+  else{
+    const w=num('#vtWidth');
+    if(w>0){pos=w>=5?2:w>=3?3:4;}else pos={h5:2,h3:3,h0:4}[loc];
+    posName='Vị trí '+pos+' (hẻm'+(w>0?' '+w+'m':'')+')';
+  }
+  // hệ số vị trí: VT2=50% VT1; VT3=80% VT2; VT4=80% VT3
+  const f=[1,1,0.5,0.4,0.32][pos];
+  const rows=[['Giá vị trí 1 (bảng giá)',vnd(base*1000)+'/m²']];
+  if(pos>1)rows.push([`Hệ số ${posName.split(' (')[0]} (so với VT1)`,pc(f)]);
+  mult*=f;
+  if(!front&&$('#vtDirt').checked){mult*=0.8;rows.push(['Hẻm đất',pc(0.8)]);}
+  const depth=num(front?'#vtDepthF':'#vtDepth');
+  if(depth>=100){mult*=0.9;rows.push(['Độ sâu ≥ 100m',pc(0.9)]);}
+  if(front&&$('#vtMulti').checked){mult*=1.1;rows.push(['Từ 2 mặt tiền trở lên',pc(1.1)]);}
+  const sp=parseFloat($('#vtSpecial').value);
+  if(sp!=1){mult*=sp;rows.push(['Trường hợp đặc biệt',pc(sp)]);}
+  const unit=base*1000*mult;
+  rows.push(['Đơn giá áp dụng',vnd(unit)+'/m²']);
+  // diện tích: hình thể
+  const S=num('#area'),R=num('#vtR'),L=num('#vtL');
+  let total=null;
+  if(S>0){
+    let hid=num('#vtHid');
+    if(hid>0&&hid<15){notes.push('Phần khuất < 15m² không được giảm 80%.');hid=0;}
+    if(hid>S)hid=0;
+    const main=S-hid;
+    let tiers=[[1,1]];
+    if(R>0&&L>0&&L>R){
+      const cm=type==3?[[5,1],[8,0.8],[Infinity,0.7]]:[[2,1],[4,0.6],[Infinity,0.4]];
+      tiers=[];let prev=0;
+      for(const [k,c] of cm){
+        const end=Math.min(L,k*R);
+        if(end>prev)tiers.push([(end-prev)/L,c]);
+        prev=end;if(end>=L)break;
+      }
+      if(tiers.length>1)notes.push(`Thửa dài ${Math.round(L/R*10)/10} lần chiều rộng: tính theo từng phần (mục 6.1.b).`);
+    }else if(R>0&&L>0&&L<=R){}
+    total=0;
+    for(const [share,c] of tiers){
+      const a=main*share;
+      total+=a*unit*c;
+      if(tiers.length>1)rows.push([`  Phần ${Math.round(a*10)/10}m² × ${pc(c)}`,vnd(a*unit*c)]);
+    }
+    if(hid>0){total+=hid*unit*0.8;rows.push([`Phần khuất ${hid}m² × 80%`,vnd(hid*unit*0.8)]);}
+    rows.push([`Tổng giá trị (${S}m²)`,vnd(total)]);
+  }
+  let h=`<div><b>${posName}</b></div>`+rows.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+  if(total!=null)h+=`<div class="row big"><span>Thành tiền</span><span>${vnd(total)}</span></div>`;
+  else h+='<div class="note">Nhập diện tích ở ô phía trên để tính tiền.</div>';
+  h+=notes.map(n=>`<div class="note">• ${n}</div>`).join('');
+  out.innerHTML=h;
+}
+for(const id of ['#vtLoc','#vtWidth','#vtDirt','#vtDepth','#vtDepthF','#vtMulti','#vtSpecial','#vtR','#vtL','#vtHid'])$(id).oninput=calcVT;
 $('#area').oninput=calc;
 $('#closeSheet').onclick=()=>{$('#sheet').hidden=true;render();};
 $('#sheet').onclick=e=>{if(e.target.id=='sheet')$('#closeSheet').click();};
