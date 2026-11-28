@@ -93,7 +93,7 @@ jobs:
             config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV.fetch('PNAME')
             config.build_settings['CODE_SIGN_IDENTITY'] = ENV.fetch('IDENT')
             config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = ENV.fetch('BUNDLE')
-            config.build_settings['MARKETING_VERSION'] = '1.1'
+            config.build_settings['MARKETING_VERSION'] = '1.2'
           end
           project.save
           RUBY

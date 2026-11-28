@@ -62,51 +62,10 @@
     <div class="area" id="sArea"></div>
     <h2 id="sName"></h2>
     <div class="seg" id="sSeg"></div>
+    <div id="sRange"></div>
     <div class="prices" id="sPrices"></div>
-    <div class="calc">
-      <label>Tính nhanh theo diện tích (m²)</label>
-      <input id="area" type="number" inputmode="decimal" placeholder="Ví dụ: 80">
-      <div id="total"></div>
-    </div>
-    <div class="calc vt">
-      <h3>Xác định vị trí 1–4 (Phụ lục I)</h3>
-      <label>Vị trí thửa đất</label>
-      <select id="vtLoc">
-        <option value="1">Mặt tiền đường (có ít nhất 1 mặt giáp đường có tên trong bảng giá) – VT1</option>
-        <option value="h5">Trong hẻm rộng ≥ 5m – VT2</option>
-        <option value="h3">Trong hẻm rộng 3m đến dưới 5m – VT3</option>
-        <option value="h0">Hẻm dưới 3m / các vị trí còn lại – VT4</option>
-        <option value="boat">Không có đường, hẻm vào (đi thuyền, bờ đất) – VT4</option>
-      </select>
-      <div id="vtAlleyBox" hidden>
-        <label>Chiều rộng nhỏ nhất của hẻm phải đi qua (m)</label>
-        <input id="vtWidth" type="number" inputmode="decimal" placeholder="Ví dụ: 4">
-        <label class="ck"><input id="vtDirt" type="checkbox"> Hẻm đất (tính 80% hẻm trải đá/nhựa/bê tông)</label>
-        <label>Khoảng cách từ mép trong lề đường đến thửa đất (m)</label>
-        <input id="vtDepth" type="number" inputmode="decimal" placeholder="Từ 100m trở lên giảm 10%">
-      </div>
-      <div id="vtFrontBox">
-        <label>Độ sâu từ mép trong lề đường (m) – nếu có</label>
-        <input id="vtDepthF" type="number" inputmode="decimal" placeholder="Từ 100m trở lên giảm 10%">
-        <label class="ck"><input id="vtMulti" type="checkbox"> Giáp từ 2 mặt tiền đường trở lên (tính 110% đường giá cao nhất)</label>
-      </div>
-      <label>Trường hợp đặc biệt</label>
-      <select id="vtSpecial">
-        <option value="1">Không</option>
-        <option value="0.7">Dọc dạ cầu / chân cầu vượt / đường nhánh lên cầu vượt (70%)</option>
-        <option value="0.7">Trong hành lang đường điện cao thế (70%)</option>
-        <option value="0.7">Cách lề đường bởi kênh, rạch chưa san lấp / phần đất phía trong cùng khuôn viên (70%)</option>
-      </select>
-      <label>Hình thể thửa đất</label>
-      <div class="two">
-        <input id="vtR" type="number" inputmode="decimal" placeholder="Chiều rộng (m)">
-        <input id="vtL" type="number" inputmode="decimal" placeholder="Chiều dài (m)">
-      </div>
-      <label>Diện tích phần khuất sau (S2, S3…) nếu có (m²) – áp dụng 80% khi ≥ 15m²</label>
-      <input id="vtHid" type="number" inputmode="decimal" placeholder="0">
-      <div id="vtOut"></div>
-    </div>
-    <button class="copy" id="copy">Sao chép thông tin</button>
+    <div class="calc vt" id="vtBox"></div>
+    <button class="copy" id="copy">Sao chép giá gốc</button>
   </div>
 </div>
 
@@ -127,6 +86,7 @@
     Số tài khoản: <b>19031628097015</b></p>
   </div>
 </div>
+<script src="calc.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
